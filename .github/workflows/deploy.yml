@@ -12,7 +12,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Prepare repository name (lowercase)
+      # Приводим repo к нижнему регистру (GHCR требует lowercase)
+      - name: Prepare repository name
         id: prep
         run: |
           echo "REPO_NAME=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
@@ -25,6 +26,12 @@ jobs:
         run: |
           docker build -t ghcr.io/${REPO_NAME}:${{ github.sha }} .
 
-      - name: Push Docker image
+      - name: Push image to GHCR
         run: |
           docker push ghcr.io/${REPO_NAME}:${{ github.sha }}
+
+      - name: Deploy to Cloud
+        run: |
+          curl -X POST https://api.cloudprovider/deploy \
+            -H "Authorization: Bearer ${{ secrets.CLOUD_TOKEN }}" \
+            -d "image=ghcr.io/${{ github.repository }}:${{ github.sha }}"
